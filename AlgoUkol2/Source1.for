@@ -18,9 +18,13 @@ C     TEST ALGORITMU 1
       PRINT*, '------ALGORITMUS 1------'
       CALL ALGO1(MATRIX, R, S, R1, R2, S1, S2, SUM)
       CALL PRINT_MATRIX(MATRIX, R, S, R1, R2, S1, S2)
-C     TEST ALGORITMU 2
-      PRINT*, '------ALGORITMUS 2------'
+      PRINT*, SUM
       
+C     TEST ALGORITMU 2
+      PRINT*, '------ALGORITMUS 1------'
+      CALL ALGO2(MATRIX, R, S, R1, R2, S1, S2, SUM)
+      CALL PRINT_MATRIX(MATRIX, R, S, R1, R2, S1, S2)
+      PRINT*, SUM    
 C     TEST ALGORITMU 3
       PRINT*, '------ALGORITMUS 3------'
       PAUSE
@@ -45,7 +49,7 @@ C         PRO VSECHNY RADKY, KDE MUZE PODMATICE KONCIT...
           DO K = I, R
 C         PRO VSECHNY SLOUPCE, KDE MUZE PODMATICE KONCIT...
           DO L = J, S
-              PRINT *, 'TEST: ', I, K, J, L
+C             PRINT *, 'TEST: ', I, K, J, L
               CALL SUM_MATRIX(MATRIX, R, S, I, K, J, L, TEMP_SUM)
               IF (TEMP_SUM > TEMP_MAX) THEN
                   TEMP_MAX = TEMP_SUM
@@ -60,6 +64,69 @@ C         PRO VSECHNY SLOUPCE, KDE MUZE PODMATICE KONCIT...
           END DO
           END DO
           END SUBROUTINE ALGO1
+
+C
+C     ALGORITMUS 2 - PREFIXOVE SOUCTY RADKU
+C
+      SUBROUTINE ALGO2(MATRIX, R, S, R1, R2, S1, S2, SUM)
+          INTEGER, INTENT(IN) :: R, S, MATRIX(R,S)
+          INTEGER, INTENT(OUT) :: R1, R2, S1, S2, SUM
+          
+          INTEGER :: I, J, K, L, TEMP_SUM, TEMP_MAX
+          INTEGER :: LINE_PREFIX(R, S)
+          
+C         PREDPOCET PREFIXOVYCH SOUCTU RADKU
+          DO I = 1, R
+              LINE_PREFIX(I, 1) = MATRIX(I, 1)
+              DO J = 2, S
+                  LINE_PREFIX(I, J) = LINE_PREFIX(I, J-1) + MATRIX(I, J)
+              END DO
+          END DO
+
+C         PRO VSECHNY RADKY, KDE MUZE PODMATICE ZACIT...
+          DO I = 1, R
+C         PRO VSECHNY SLOUPCE, KDE MUZE PODMATICE ZACIT...
+          DO J = 1, S
+C         PRO VSECHNY RADKY, KDE MUZE PODMATICE KONCIT...
+          DO K = I, R
+C         PRO VSECHNY SLOUPCE, KDE MUZE PODMATICE KONCIT...
+          DO L = J, S
+C             PRINT *, 'TEST: ', I, K, J, L
+              CALL SUM_PREFIX(LINE_PREFIX, R, S, I, K, J, L, TEMP_SUM)
+              IF (TEMP_SUM > TEMP_MAX) THEN
+                  TEMP_MAX = TEMP_SUM
+                  SUM = TEMP_SUM
+                  R1 = I
+                  R2 = K
+                  S1 = J
+                  S2 = L
+              END IF
+          END DO
+          END DO
+          END DO
+          END DO
+      END SUBROUTINE ALGO2
+
+C
+C     SOUCET PRVKU PODMATICE POMOCI PREFIXOVYCH SOUCTU RADKU
+C
+      SUBROUTINE SUM_PREFIX(LINE_PREFIX, R, S, R1, R2, S1, S2, SUM)
+          INTEGER, INTENT(IN) :: R, S, LINE_PREFIX(R,S)
+          INTEGER, INTENT(IN) :: R1, R2, S1, S2
+          INTEGER, INTENT(OUT) :: SUM
+          INTEGER :: I, J
+          
+          SUM = 0
+          DO I = R1, R2
+              IF (S1 > 1) THEN
+                  SUM = SUM + LINE_PREFIX(I, S2)-LINE_PREFIX(I, S1 - 1)
+              ELSE
+                  SUM = SUM + LINE_PREFIX(I, S2)
+              END IF
+          END DO
+      END SUBROUTINE SUM_PREFIX
+          
+C
 C     SOUCET PRVKU (POD)MATICE
 C 
       SUBROUTINE SUM_MATRIX(MATRIX, R, S, R1, R2, S1, S2, SUM)
@@ -75,6 +142,7 @@ C
           END DO
       END DO
       END SUBROUTINE SUM_MATRIX
+      
 C
 C     VYGENEROVANI MATICE
 C      
@@ -84,13 +152,14 @@ C
           DOUBLE PRECISION :: RND
           INTEGER :: I, J
           
-      DO I = 1, R
-          DO J = 1, S
-              CALL RANDOM_NUMBER(RND)
-              MATRIX(I,J) = MIN + INT(RND * (MAX - MIN + 1))
+          CALL RANDOM_SEED()
+          DO I = 1, R
+              DO J = 1, S
+                  CALL RANDOM_NUMBER(RND)
+                  MATRIX(I,J) = MIN + INT(RND * (MAX - MIN + 1))
+              END DO
           END DO
-      END DO
-      RETURN
+          RETURN
       END SUBROUTINE FILL_MATRIX
 C
 C     VYPIS MATICE
