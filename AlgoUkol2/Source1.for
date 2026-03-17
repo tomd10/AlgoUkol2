@@ -22,7 +22,7 @@ C     TEST ALGORITMU 1
       PRINT*, SUM
       
 C     TEST ALGORITMU 2
-      PRINT*, '------ALGORITMUS 1------'
+      PRINT*, '------ALGORITMUS 2------'
       CALL ALGO2(MATRIX, R, S, R1, R2, S1, S2, SUM)
       CALL PRINT_MATRIX(MATRIX, R, S, R1, R2, S1, S2)
       PRINT*, SUM    
@@ -131,11 +131,8 @@ C
           S2 = 1
 
           DO LEFT = 1, S
-
               TEMP = 0
-
               DO RIGHT = LEFT, S
-
                   DO I = 1, R
                       TEMP(I) = TEMP(I) + MATRIX(I, RIGHT)
                   END DO
